@@ -1,3 +1,7 @@
+# Development
+
+- Java 21
+- Spring Boot 3.3.0
 
 # Commit Message
 
