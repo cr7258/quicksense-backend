@@ -16,6 +16,10 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 21
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: java
       - name: Install dependencies, run tests, and collect coverage
         run: gradle build
       - name: Upload coverage reports to Codecov
