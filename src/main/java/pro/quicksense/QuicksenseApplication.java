@@ -8,6 +8,6 @@ public class QuicksenseApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(QuicksenseApplication.class, args);
-		System.out.println("Hello World");
+		System.out.println("Hello Test");
 	}
 }
