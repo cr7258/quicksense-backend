@@ -1,0 +1,28 @@
+## 本地测试配置
+version: '3'
+services:
+  redis:
+    image: redis
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes
+
+  mysql:
+    image: mysql:latest
+    container_name: mysql
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: quicksense
+      MYSQL_USER: quicksense
+      MYSQL_PASSWORD: quicksense
+
+volumes:
+  redis-data:
+  mysql-data:
