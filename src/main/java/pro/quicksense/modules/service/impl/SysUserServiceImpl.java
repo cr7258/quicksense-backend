@@ -28,21 +28,6 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     private SysUserMapper userMapper;
 
     @Override
-    public SysUser getUserByName(String username) {
-        return userMapper.getUserByName(username);
-    }
-
-    @Override
-    public SysUser getUserByPhone(String phone) {
-        return userMapper.getUserByPhone(phone);
-    }
-
-    @Override
-    public SysUser getUserByEmail(String email) {
-        return userMapper.getUserByEmail(email);
-    }
-
-    @Override
     public Result<JSONObject> checkUserIsEffective(SysUser sysUser) {
         Result<JSONObject> result = new Result<>();
         //情况1：根据用户信息查询，该用户不存在

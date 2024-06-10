@@ -4,18 +4,4 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="pro.quicksense.modules.mapper.SysUserMapper">
 
-    <select id="getUserByName" resultType="pro.quicksense.modules.eneity.SysUser">
-        select * from sys_user
-        where username = #{username}
-    </select>
-
-    <select id="getUserByPhone" resultType="pro.quicksense.modules.eneity.SysUser">
-        select * from sys_user
-        where phone = #{phone}
-    </select>
-
-    <select id="getUserByEmail" resultType="pro.quicksense.modules.eneity.SysUser">
-        select * from sys_user
-        where email = #{email}
-    </select>
 </mapper>
