@@ -1,16 +1,17 @@
 plugins {
     id 'jacoco'
     id 'java'
-    id 'org.springframework.boot' version '2.7.9'
+    id 'org.springframework.boot' version '3.1.0'
     id 'io.spring.dependency-management' version '1.1.0'
 }
+
 
 group = 'pro.quicksense'
 version = '0.0.1-SNAPSHOT'
 
 java {
-    sourceCompatibility = '1.8'
-    targetCompatibility = '1.8'
+    sourceCompatibility = '21'
+    targetCompatibility = '21'
 }
 
 repositories {
@@ -25,14 +26,15 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-    implementation 'io.springfox:springfox-swagger2:3.0.0'
-    implementation 'io.springfox:springfox-swagger-ui:3.0.0'
     implementation 'com.baomidou:mybatis-plus-boot-starter:3.5.3.1'
     implementation 'commons-io:commons-io:2.11.0'
     implementation 'cn.hutool:hutool-all:5.8.15'
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     implementation 'com.auth0:java-jwt:4.4.0'
     implementation 'mysql:mysql-connector-java:8.0.29'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'io.jsonwebtoken:jjwt:0.9.1'
+
 }
 
 tasks.named('test') {
