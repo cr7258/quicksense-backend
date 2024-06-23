@@ -1,7 +1,7 @@
-CREATE TABLE IF NOT EXISTS `sys_user` (
-                                          `id` VARCHAR(255) NOT NULL,
+CREATE TABLE IF NOT EXISTS `user` (
+    `id` VARCHAR(255) NOT NULL,
     `username` VARCHAR(255),
-    `real_name` VARCHAR(255),
+    `realname` VARCHAR(255),
     `password` VARCHAR(255),
     `salt` VARCHAR(255),
     `email` VARCHAR(255),
@@ -10,4 +10,5 @@ CREATE TABLE IF NOT EXISTS `sys_user` (
     `create_time` DATETIME,
     `update_time` DATETIME,
     PRIMARY KEY (`id`)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+  

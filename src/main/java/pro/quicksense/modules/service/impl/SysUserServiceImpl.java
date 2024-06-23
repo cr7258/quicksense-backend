@@ -21,17 +21,17 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, User> impleme
     public Result<String> checkUserIsEffective(User user) {
         Result<String> result = new Result<>();
 
-        //情况1：根据用户信息查询，该用户不存在
+        // The user does not exist
         if (ObjectUtil.isEmpty(user)) {
             result.setCode(500);
-            result.setMsg("该用户不存在，请注册");
+            result.setMsg("The user does not exist. Please sign up.");
             return result;
         }
 
-        //情况2：根据用户信息查询，该用户已冻结
-        if (CommonConstant.USER_STATUS_NORMAL.equals(user.getStatus())) {
+        // The user account is frozen.
+        if (CommonConstant.USER_STATUS_FROZEN.equals(user.getStatus())) {
             result.setCode(500);
-            result.setMsg("该用户已冻结");
+            result.setMsg("The user account is frozen.");
             return result;
         }
 
