@@ -19,6 +19,11 @@ public class JwtInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+        String path = request.getRequestURI();
+        if ("/user/login".equals(path) || "/user/register".equals(path) || "/user/loginByEmail".equals(path)) {
+            return true;
+        }
+
         // Get the token from the request header
         String token = request.getHeader(CommonConstant.X_ACCESS_TOKEN);
 

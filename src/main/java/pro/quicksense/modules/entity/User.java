@@ -1,4 +1,4 @@
-package pro.quicksense.modules.eneity;
+package pro.quicksense.modules.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -23,13 +23,10 @@ public class User implements Serializable {
 
     private String username;
 
-    private String realName;
+    private String realname;
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
-
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    private String salt;
 
     private String email;
 

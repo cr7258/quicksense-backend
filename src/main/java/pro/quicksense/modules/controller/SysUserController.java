@@ -1,6 +1,7 @@
 package pro.quicksense.modules.controller;
 
 
+import cn.hutool.core.util.ObjectUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
@@ -8,16 +9,18 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import pro.quicksense.modules.common.CommonConstant;
 import pro.quicksense.modules.common.Result;
-import pro.quicksense.modules.eneity.User;
+import pro.quicksense.modules.entity.User;
 import pro.quicksense.modules.service.ISysUserService;
+import pro.quicksense.modules.util.CodeUtil;
+import pro.quicksense.modules.util.EmailUtil;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 
 @Slf4j
@@ -28,65 +31,62 @@ public class SysUserController {
     @Autowired
     private ISysUserService sysUserService;
 
+    @Autowired
+    private EmailUtil emailUtil;
+
+    @Autowired
+    private CodeUtil codeUtil;
 
     @PostMapping("/register")
     public Result<?> userRegister(@RequestBody JSONObject jsonObject) {
-        Result<?> result = new Result<>();
         String username = jsonObject.getString("username");
+        if (StringUtils.isBlank(username)) {
+            return Result.error(CommonConstant.BAD_REQUEST_CODE, "Username cannot be empty");
+        }
         String email = jsonObject.getString("email");
+        if (StringUtils.isBlank(email)) {
+            return Result.error(CommonConstant.BAD_REQUEST_CODE, "Email cannot be empty");
+        }
         String password = jsonObject.getString("password");
+        if (StringUtils.isBlank(password)) {
+            return Result.error(CommonConstant.BAD_REQUEST_CODE, "Password cannot be empty");
+        }
         String confirmPassword = jsonObject.getString("confirmPassword");
+        if (StringUtils.isBlank(confirmPassword)) {
+            return Result.error(CommonConstant.BAD_REQUEST_CODE, "Confirm password cannot be empty");
+        }
         String realName = jsonObject.getString("realName");
+        if (StringUtils.isBlank(realName)) {
+            return Result.error(CommonConstant.BAD_REQUEST_CODE, "Real name cannot be empty");
+        }
+
+        String verifyCode = jsonObject.getString("verifyCode ");
+        if (StringUtils.isBlank(verifyCode )) {
+            return Result.error(CommonConstant.BAD_REQUEST_CODE, "verifyCode  cannot be empty");
+        }
 
         // Validate email address format
-        String emailPattern = "^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\\.[a-zA-Z0-9_-]+)+$";
-        if (!email.matches(emailPattern)) {
-            result.setCode(400);
-            result.setMsg("Invalid email format");
-            return result;
+        if (emailUtil.isInvalidEmail(email)) {
+            return Result.error(CommonConstant.BAD_REQUEST_CODE, "Invalid email format");
         }
 
         // Validate password format
         String passwordPattern = "^(?=.*[0-9])(?=.*[a-zA-Z])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{8,20}$";
         if (!password.matches(passwordPattern)) {
-            result.setCode(400);
-            result.setMsg("Password must contain letters, numbers, and special characters");
-            return result;
+            return Result.error(CommonConstant.BAD_REQUEST_CODE, "Password must contain letters, numbers, and special characters");
         }
 
         // Check if password and confirm password are equal
         if (!password.equals(confirmPassword)) {
-            result.setCode(400);
-            result.setMsg("Password and confirm password do not match");
-            return result;
+            return Result.error(CommonConstant.BAD_REQUEST_CODE, "Password and confirm password do not match");
         }
 
-        //TODO: Email verification code functionality to be implemented
-
-        // Encrypt the password
-        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-        String encodedPassword = passwordEncoder.encode(password);
-
-        try {
-            User user = new User();
-            user.setCreateTime(new Date());
-            user.setUsername(username);
-            user.setRealName(realName);
-            user.setPassword(encodedPassword);
-            user.setEmail(email);
-            user.setStatus(CommonConstant.USER_STATUS_FROZEN);
-            sysUserService.save(user);
-            result.setCode(200);
-            result.setMsg("User registered successfully");
-        } catch (DataIntegrityViolationException e) {
-            result.setCode(400);
-            result.setMsg("Username or email already exists");
-        } catch (Exception e) {
-            result.setCode(500);
-            result.setMsg("An error occurred during registration");
+        //Email verification
+        if (!codeUtil.verifyCode(email,verifyCode,CommonConstant.KEY_PREFIX)) {
+            return Result.error(CommonConstant.BAD_REQUEST_CODE, "Verification code error");
         }
 
-        return result;
+        return sysUserService.saveUser(username, realName, password, email);
     }
 
 
@@ -94,7 +94,13 @@ public class SysUserController {
     public Result<?> login(@RequestBody JSONObject jsonObject) {
         Result<?> result = new Result<>();
         String username = jsonObject.getString("username");
+        if (StringUtils.isBlank(username)) {
+            return Result.error(CommonConstant.BAD_REQUEST_CODE, "Username cannot be empty");
+        }
         String password = jsonObject.getString("password");
+        if (StringUtils.isBlank(password)) {
+            return Result.error(CommonConstant.BAD_REQUEST_CODE, "Password cannot be empty");
+        }
 
         LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(User::getUsername, username);
@@ -102,7 +108,7 @@ public class SysUserController {
 
         // Check if the user exists and is effective
         result = sysUserService.checkUserIsEffective(user);
-        if (result.getCode() != 200) {
+        if (!Objects.equals(result.getCode(), CommonConstant.SUCCESS_CODE)) {
             return result;
         }
 
@@ -110,29 +116,49 @@ public class SysUserController {
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         boolean matches = passwordEncoder.matches(password, user.getPassword());
         if (!matches) {
-            result.setCode(400);
-            result.setMsg("Incorrect username or password");
-            return result;
+            return Result.error(CommonConstant.BAD_REQUEST_CODE, "Incorrect username or password");
         }
 
-        Result<String> loginResult = new Result<>();
         // Login successful, generate token and return
-        userInfo(user, loginResult);
-        return loginResult;
+        return userInfo(user);
     }
+
+    @PostMapping("/loginByEmail")
+    public Result<?> logout(@RequestBody JSONObject jsonObject) {
+        String email = jsonObject.getString("email");
+        String verifyCode = jsonObject.getString("verifyCode");
+        if (StringUtils.isBlank(email)) {
+            return Result.error(CommonConstant.BAD_REQUEST_CODE, "Email cannot be empty");
+        }
+        if (StringUtils.isBlank(verifyCode)) {
+            return Result.error(CommonConstant.BAD_REQUEST_CODE, "verifyCode  cannot be empty");
+        }
+
+        //Email verification
+        if (!codeUtil.verifyCode(email,verifyCode,CommonConstant.KEY_PREFIX)) {
+            return Result.error(CommonConstant.BAD_REQUEST_CODE, "Verification code error");
+        }
+
+        LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(User::getEmail, email);
+        User user = sysUserService.getOne(queryWrapper);
+        if (ObjectUtil.isEmpty(user)) {
+            return Result.error(CommonConstant.BAD_REQUEST_CODE, "User not found");
+        }
+        return userInfo(user);
+
+    }
+
 
     @PostMapping("/edit")
     public Result<Object> edit(@RequestBody User user) {
-        Result<Object> result = new Result<>();
         try {
+            user.setUpdateTime(new Date());
             sysUserService.updateById(user);
-            result.setCode(200);
-            result.setMsg("edit success");
+            return Result.success("edit success");
         } catch (Exception e) {
-            result.setCode(500);
-            result.setMsg("edit fail");
+            return Result.error(CommonConstant.INTERNAL_SERVER_ERROR_CODE, "edit failed");
         }
-        return result;
     }
 
     @GetMapping("/userInfo")
@@ -143,27 +169,25 @@ public class SysUserController {
             user = sysUserService.getById(id);
         } else {
             List<User> userList = sysUserService.list();
-            Result<List<User>> result = new Result<>();
-            result.setCode(200);
-            result.setMsg("User list");
-            result.setData(userList);
+            return Result.success(userList);
         }
 
-        Result<User> loginResult = new Result<>();
-        loginResult.setCode(200);
-        loginResult.setMsg("User info");
-        loginResult.setData(user);
-        return loginResult;
+        return Result.success("User info", user);
     }
 
-    private Result<String> userInfo(User user, Result<String> result) {
+    @GetMapping("/sendEmail")
+    public Result<?> sendEmail(@RequestParam(value = "email") String email) {
+        try {
+            emailUtil.sendSimpleMail(email);
+        } catch (Exception e) {
+            return Result.error(CommonConstant.INTERNAL_SERVER_ERROR_CODE, "send email failed");
+        }
+        return Result.success("send email success");
+    }
+
+    private Result<?> userInfo(User user) {
         String token = generateToken(user);
-
-        result.setCode(200);
-        result.setMsg("Login success");
-        result.setData(token);
-
-        return result;
+        return Result.success(token);
     }
 
     private String generateToken(User user) {

@@ -2,21 +2,25 @@ package pro.quicksense.modules.service.impl;
 
 
 import cn.hutool.core.util.ObjectUtil;
-import com.alibaba.fastjson.JSONObject;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import pro.quicksense.modules.common.CommonConstant;
 import pro.quicksense.modules.common.Result;
-import pro.quicksense.modules.eneity.User;
-import pro.quicksense.modules.mapper.SysUserMapper;
+import pro.quicksense.modules.entity.User;
+import pro.quicksense.modules.mapper.UserMapper;
 import pro.quicksense.modules.service.ISysUserService;
+
+
+import java.util.Date;
 
 
 @Service
 @Slf4j
-public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, User> implements ISysUserService {
+public class SysUserServiceImpl extends ServiceImpl<UserMapper, User> implements ISysUserService {
+
     @Override
     public Result<String> checkUserIsEffective(User user) {
         Result<String> result = new Result<>();
@@ -37,5 +41,29 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, User> impleme
 
         result.setCode(200);
         return result;
+    }
+
+    @Override
+    public Result<?> saveUser(String username, String realName, String password, String email) {
+
+        // Encrypt the password
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        String encodedPassword = passwordEncoder.encode(password);
+
+        User user = new User();
+        user.setCreateTime(new Date());
+        user.setUsername(username);
+        user.setRealname(realName);
+        user.setPassword(encodedPassword);
+        user.setEmail(email);
+        user.setStatus(CommonConstant.USER_STATUS_NORMAL);
+        try {
+            this.save(user);
+            return Result.success();
+        } catch (DataIntegrityViolationException e) {
+            return Result.error(CommonConstant.BAD_REQUEST_CODE, "Username or email already exists");
+        } catch (Exception e) {
+            return Result.error(CommonConstant.INTERNAL_SERVER_ERROR_CODE, "An error occurred during registration");
+        }
     }
 }
