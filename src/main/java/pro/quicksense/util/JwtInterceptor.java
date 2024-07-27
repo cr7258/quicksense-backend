@@ -1,4 +1,4 @@
-package pro.quicksense.modules.util;
+package pro.quicksense.util;
 
 
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
@@ -11,8 +11,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
-import pro.quicksense.modules.common.CommonConstant;
-import pro.quicksense.modules.entity.User;
+import pro.quicksense.common.CommonConstant;
+import pro.quicksense.entity.User;
 
 import java.util.Date;
 

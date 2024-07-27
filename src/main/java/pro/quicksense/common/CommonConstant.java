@@ -1,4 +1,4 @@
-package pro.quicksense.modules.common;
+package pro.quicksense.common;
 
 
 public interface CommonConstant {

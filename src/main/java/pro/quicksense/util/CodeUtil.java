@@ -1,4 +1,4 @@
-package pro.quicksense.modules.util;
+package pro.quicksense.util;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -14,15 +14,10 @@ public class CodeUtil {
         return String.valueOf((int) ((Math.random() * 9 + 1) * 100000));
     }
 
-    public boolean verifyCode(String email, String verifyCode,String key) {
+    public boolean verifyCode(String email, String verifyCode, String key) {
         key = key + email;
         String storedCode = redisTemplate.opsForValue().get(key);
         return verifyCode.equals(storedCode);
-    }
-
-    public void deleteCode(String userId,String key) {
-        key = key + userId;
-        redisTemplate.delete(key);
     }
 }
 

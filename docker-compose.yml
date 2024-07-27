@@ -1,4 +1,3 @@
-## 本地测试配置
 version: '3'
 services:
   redis:

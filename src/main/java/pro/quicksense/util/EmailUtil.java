@@ -1,4 +1,4 @@
-package pro.quicksense.modules.util;
+package pro.quicksense.util;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,7 +7,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
-import pro.quicksense.modules.common.CommonConstant;
+import pro.quicksense.common.CommonConstant;
 
 import java.util.concurrent.TimeUnit;
 
