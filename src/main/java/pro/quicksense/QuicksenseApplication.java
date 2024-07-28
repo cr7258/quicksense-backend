@@ -10,6 +10,5 @@ public class QuicksenseApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(QuicksenseApplication.class, args);
-		log.info("User Management System started successfully...");
 	}
 }
