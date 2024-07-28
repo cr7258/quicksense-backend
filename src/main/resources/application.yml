@@ -1,0 +1,62 @@
+# Application
+spring:
+  application:
+    name: quicksense
+
+  # MySQL
+  datasource:
+    url: jdbc:mysql://localhost:3306/quicksense?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC
+    username: quicksense
+    password: quicksense
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  sql:
+    init:
+      schema-locations: classpath:init.sql
+      mode: never
+
+  # Redis
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      database: 0
+
+  # Email Configuration
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: lhn199699uow@gmail.com
+    password: wtzzdapjjmqipgdz
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+        transport:
+          protocol: smtp
+
+# MyBatis Plus configuration
+mybatis-plus:
+  mapper-locations: classpath:/mapper/xml/*.xml
+  type-aliases-package: pro.quicksense.modules.entity
+
+# Logging
+logging:
+  level:
+    org.mybatis: DEBUG
+    com.zaxxer.hikari: DEBUG
+    pro.quicksense: DEBUG
+    org.springframework.web: DEBUG
+
+# JWT
+jwt:
+  secret: secret
+  expiration: 86400000
+
+# Custom Email Settings
+app:
+  email:
+    expiration-minutes: 3
+    subject: QuickSense Registration
+

@@ -1,13 +1,9 @@
-CREATE TABLE IF NOT EXISTS `user` (
-    `id` VARCHAR(255) NOT NULL,
-    `username` VARCHAR(255),
-    `realname` VARCHAR(255),
-    `password` VARCHAR(255),
-    `email` VARCHAR(255),
-    `phone` VARCHAR(255),
-    `status` INT,
-    `create_time` DATETIME,
-    `update_time` DATETIME,
-    PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-  
+CREATE TABLE user (
+    id          INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    username    VARCHAR(30) NOT NULL UNIQUE,
+    password    VARCHAR(60) NOT NULL,
+    email       VARCHAR(50) NOT NULL UNIQUE,
+    status      INT,
+    create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+    update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
