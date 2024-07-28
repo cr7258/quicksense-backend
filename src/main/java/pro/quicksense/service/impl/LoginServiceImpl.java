@@ -26,13 +26,13 @@ public class LoginServiceImpl implements LoginService {
 
     @Override
     public String loginByEmail(EmailLogin emailLogin) {
-        if (!codeUtil.verifyCode(emailLogin.getEmail(), emailLogin.getVerifyCode(), CommonConstant.KEY_PREFIX)) {
-            throw new CustomExceptions.LoginException("Incorrect Verification code");
-        }
-
         User user = userService.findByEmail(emailLogin.getEmail());
         if (user == null) {
             throw new CustomExceptions.LoginException("User does not exist");
+        }
+
+        if (!codeUtil.verifyCode(emailLogin.getEmail(), emailLogin.getVerifyCode(), CommonConstant.KEY_PREFIX)) {
+            throw new CustomExceptions.LoginException("Incorrect Verification code");
         }
 
         // Login successful, generate token and return
