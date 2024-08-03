@@ -1,6 +1,7 @@
 package pro.quicksense.controller;
 
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,7 @@ import pro.quicksense.entity.User;
 import pro.quicksense.service.UserService;
 
 
+@Tag(name = "User", description = "User management APIs")
 @Slf4j
 @RestController
 @RequestMapping("/user")

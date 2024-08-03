@@ -1,5 +1,6 @@
 package pro.quicksense.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -13,6 +14,7 @@ import pro.quicksense.entity.login.EmailLogin;
 import pro.quicksense.entity.login.UsernameLogin;
 import pro.quicksense.service.LoginService;
 
+@Tag(name="Login", description="Login API")
 @RestController
 @RequestMapping("/login")
 public class LoginController {
