@@ -1,17 +1,44 @@
 package pro.quicksense.service;
 
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Service;
+import pro.quicksense.common.Constant;
 import pro.quicksense.entity.User;
+import pro.quicksense.repository.UserRepository;
+
 import java.util.List;
 
+@Service
+@Slf4j
+public class UserService {
 
-public interface UserService {
-    User register(User user);
+    @Autowired
+    private UserRepository userRepository;
 
-    User findByUsername(String username);
+    public User register(User user) {
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setStatus(Constant.USER_STATUS_NORMAL);
+        userRepository.save(user);
 
-    User findByEmail(String email);
+        return user;
+    }
 
-    List<User> findAll();
+    public User findByUsername(String username) {
+        return userRepository.findByUsername(username);
+    }
 
-    User update(User user);
+    public User findByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
+
+    public List<User> findAll() {
+        return userRepository.findAll();
+    }
+
+    public User update(User user) {
+        return userRepository.save(user);
+    }
 }

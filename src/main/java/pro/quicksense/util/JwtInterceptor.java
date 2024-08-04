@@ -11,7 +11,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
-import pro.quicksense.common.CommonConstant;
+import pro.quicksense.common.Constant;
 import pro.quicksense.entity.User;
 
 import java.util.Date;
@@ -29,7 +29,7 @@ public class JwtInterceptor implements HandlerInterceptor {
         }
 
         // Get the token from the request header
-        String token = request.getHeader(CommonConstant.X_ACCESS_TOKEN);
+        String token = request.getHeader(Constant.X_ACCESS_TOKEN);
 
         if (StringUtils.isBlank(token)) {
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token is missing or has expired");
