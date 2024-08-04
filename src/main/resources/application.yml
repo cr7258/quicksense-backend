@@ -60,3 +60,7 @@ app:
     expiration-minutes: 3
     subject: QuickSense Registration
 
+openapi:
+  title: QuickSense Backend API
+  version: 1.0
+  description: This API exposes endpoints to manage QuickSense users and their data.
