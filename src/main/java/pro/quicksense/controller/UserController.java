@@ -27,12 +27,12 @@ public class UserController {
         return ApiResponseBuilder.success(HttpStatus.CREATED, "User registered successfully", userService.register(user));
     }
 
-    @PostMapping("/edit")
+    @PostMapping("/update")
     public ResponseEntity<Object> update(@RequestBody @Valid User user) {
         return ApiResponseBuilder.success(HttpStatus.OK, "User updated successfully", userService.update(user));
     }
 
-    @GetMapping("/list")
+    @PostMapping("/list")
     public ResponseEntity<Object> list() {
         return ApiResponseBuilder.success(HttpStatus.OK, "User information listed successfully", userService.findAll());
     }
