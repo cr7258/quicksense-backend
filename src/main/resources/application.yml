@@ -55,3 +55,7 @@ openapi:
   title: QuickSense Backend API
   version: 1.0
   description: This API exposes endpoints to manage QuickSense users and their data.
+
+airwallex:
+  CLIENT_ID_TEST: doemvUe8TSq0eDglXCfhQg
+  API_KEY_TEST: ba74c1edb5d018e9c9c7827ec2e8268f99d7bdedcc75a59798c955e7359eda51dc526aa6d1512e060203ffe8d0695f7d

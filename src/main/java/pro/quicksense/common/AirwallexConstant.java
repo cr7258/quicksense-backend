@@ -10,9 +10,6 @@ public class AirwallexConstant {
     public static final String API_LIST_PAYMENTS = API_AIRWALLEX_ROOT + "/payments";
     public static final String API_CREATE_QUOTE = API_AIRWALLEX_ROOT + "/fx/quotes/create";
 
-    public static final String CLIENT_ID_TEST = "doemvUe8TSq0eDglXCfhQg";
-    public static final String API_KEY_TEST = "ba74c1edb5d018e9c9c7827ec2e8268f99d7bdedcc75a59798c955e7359eda51dc526aa6d1512e060203ffe8d0695f7d";
-
     /**
      * The client needs to be authorized before calling all other Airwallex APIs,
      * and a token will be returned to the response body if auth process succeeds.

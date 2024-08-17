@@ -8,6 +8,7 @@ import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import pro.quicksense.annotation.AirwallexRequest;
 import pro.quicksense.common.AirwallexConstant;
@@ -31,6 +32,12 @@ public class PaymentService {
      */
     private static String AIRWALLEX_TOKEN_EXPIRES_AT;
 
+    @Value("${airwallex.CLIENT_ID_TEST}")
+    private String clientId;
+
+    @Value("${airwallex.API_KEY_TEST}")
+    private String apiKey;
+
     /**
      * Request for Airwallex authentication, Airwallex would return a time-sensitive token,
      * which should be included in all the other requests to Airwallex.
@@ -45,8 +52,8 @@ public class PaymentService {
         HttpResponse<String> response = Unirest.post(AirwallexConstant.API_AUTHENTICATION_LOGIN)
                 .header("Content-Type", "application/json")
                 // TODO Replace the 'CLIENT_ID_TEST' and 'API_KEY_TEST' with configurations for production.
-                .header("x-client-id", AirwallexConstant.CLIENT_ID_TEST)
-                .header("x-api-key", AirwallexConstant.API_KEY_TEST)
+                .header("x-client-id", clientId)
+                .header("x-api-key", apiKey)
                 .body("{}")
                 .asString();
         JSONObject jsonObject = JSON.parseObject(response.getBody());
