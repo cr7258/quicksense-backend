@@ -24,6 +24,25 @@ public class PaymentController {
                 paymentService.createPaymentLink());
     }
 
+    @GetMapping("/link/retrieve")
+    public ResponseEntity<Object> retrievePaymentLink(@RequestParam(required = false) String paymentLinkId) throws UnirestException {
+        return ApiResponseBuilder.success(
+                HttpStatus.OK,
+                "Retrieve payment link successfully",
+                paymentService.retrievePaymentLink(paymentLinkId));
+    }
+
+    @GetMapping("/link/list")
+    public ResponseEntity<Object> listPaymentLinks(@RequestParam(required = false) String fromCreatedAt,
+                                                   @RequestParam(required = false) String toCreatedAt,
+                                                   @RequestParam(required = false) Boolean status,
+                                                   @RequestParam(required = false) Boolean isActive) throws UnirestException {
+        return ApiResponseBuilder.success(
+                HttpStatus.OK,
+                "List payment links successfully",
+                paymentService.listPaymentLinks(fromCreatedAt, toCreatedAt, status, isActive));
+    }
+
     @GetMapping("/list")
     public ResponseEntity<Object> listPayments() throws UnirestException {
         return ApiResponseBuilder.success(

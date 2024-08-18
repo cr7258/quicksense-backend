@@ -10,12 +10,15 @@ import com.mashape.unirest.http.exceptions.UnirestException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.util.UriComponentsBuilder;
 import pro.quicksense.annotation.AirwallexRequest;
 import pro.quicksense.common.AirwallexConstant;
+import pro.quicksense.common.AirwallexPaymentLink;
 import pro.quicksense.util.TimezoneUtil;
 
 import java.text.ParseException;
 import java.util.Date;
+import java.util.Optional;
 
 import static pro.quicksense.common.AirwallexConstant.*;
 
@@ -72,6 +75,36 @@ public class PaymentService {
                 .header("Content-Type", "application/json")
                 .header("Authorization", "Bearer " + AIRWALLEX_TOKEN)
                 .body(this.assignParametersForPaymentLink().toString())
+                .asString();
+        return JSON.parseObject(response.getBody());
+    }
+
+    @AirwallexRequest
+    public JSONObject retrievePaymentLink(String paymentLinkId) throws UnirestException {
+        HttpResponse<String> response = Unirest.get(AirwallexConstant.API_PAYMENT_LINKS_LIST + "/" + paymentLinkId)
+                .header("Authorization", "Bearer " + AIRWALLEX_TOKEN)
+                .asString();
+        return JSON.parseObject(response.getBody());
+    }
+
+    /**
+     * Get list of PaymentLinks
+     * @param fromCreatedAt Specifies start time (inclusive) in ISO 8601 for a range query by created timestamp
+     * @param toCreatedAt Specifies end time (exclusive) in ISO 8601 for a range query by created timestamp
+     * @param isPaid Status of the payment link, one of UNPAID or PAID.
+     * @param isActive The payment link’s active status, either true or false
+     */
+    @AirwallexRequest
+    public JSONObject listPaymentLinks(String fromCreatedAt, String toCreatedAt, Boolean isPaid, Boolean isActive) throws UnirestException {
+        UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(API_PAYMENT_LINKS_LIST);
+        builder.queryParamIfPresent("from_created_at", Optional.ofNullable(fromCreatedAt));
+        builder.queryParamIfPresent("to_created_at", Optional.ofNullable(toCreatedAt));
+        if (isPaid != null) {
+            builder.queryParam("status", isPaid ? AirwallexPaymentLink.PAYMENT_LINK_STATUS_PAID : AirwallexPaymentLink.PAYMENT_LINK_STATUS_UNPAID);
+        }
+        builder.queryParamIfPresent("active", Optional.ofNullable(isActive));
+        HttpResponse<String> response = Unirest.get(builder.build().toString())
+                .header("Authorization", "Bearer " + AIRWALLEX_TOKEN)
                 .asString();
         return JSON.parseObject(response.getBody());
     }
