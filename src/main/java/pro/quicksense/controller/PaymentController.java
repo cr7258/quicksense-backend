@@ -43,28 +43,4 @@ public class PaymentController {
                 "List payment links successfully",
                 paymentService.listPaymentLinks(fromCreatedAt, toCreatedAt, status, isActive));
     }
-
-    @GetMapping("/list")
-    public ResponseEntity<Object> listPayments() throws UnirestException {
-        return ApiResponseBuilder.success(
-                HttpStatus.OK,
-                "List payments successfully",
-                paymentService.listPayments());
-    }
-
-    @PostMapping("/create")
-    public ResponseEntity<Object> createPayment(@RequestParam("requestID") String requestID) throws UnirestException {
-        return ApiResponseBuilder.success(
-                HttpStatus.OK,
-                "Create payment successfully",
-                paymentService.createPayment(requestID));
-    }
-
-    @GetMapping("/check")
-    public ResponseEntity<Object> checkPaymentStatus() throws UnirestException {
-        return ApiResponseBuilder.success(
-                HttpStatus.OK,
-                "Check payment status successfully",
-                paymentService.checkPaymentStatus("test_payment_id"));
-    }
 }

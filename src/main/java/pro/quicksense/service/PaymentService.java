@@ -111,43 +111,6 @@ public class PaymentService {
         return JSON.parseObject(response.getBody());
     }
 
-    /**
-     * Get list of payments from a specified condition,
-     * payments 30 days in arrears of today or the to created_at date will be returned.
-     */
-    @AirwallexRequest
-    public JSONArray listPayments() throws UnirestException {
-        // TODO Add parameters
-        HttpResponse<String> response = Unirest.get(API_LIST_PAYMENTS)
-                .header("Authorization", "Bearer " + AIRWALLEX_TOKEN)
-                .asString();
-        return JSON.parseArray(response.getBody());
-    }
-
-    /**
-     * Create a payment
-     */
-    @AirwallexRequest
-    public JSONObject createPayment(String requestID) throws UnirestException {
-        HttpResponse<String> response = Unirest.post(AirwallexConstant.API_CREATE_PAYMENT)
-                .header("Authorization", "Bearer " + AIRWALLEX_TOKEN)
-                .header("Content-Type", "application/json")
-                .body(this.assignParametersForCreatingPayment(requestID).toString())
-                .asString();
-        return JSON.parseObject(response.getBody());
-    }
-
-    /**
-     * query the payment status
-     */
-    @AirwallexRequest
-    public JSONObject checkPaymentStatus(String paymentId) throws UnirestException {
-        HttpResponse<String> response = Unirest.get(AirwallexConstant.API_AIRWALLEX_ROOT + "/payments/" + paymentId)
-                .header("Authorization", "Bearer " + AIRWALLEX_TOKEN)
-                .asString();
-        return JSON.parseObject(response.getBody());
-    }
-
     private String assignParametersForPaymentLink(Payment payment) {
         JSONObject metadata = new JSONObject();
         // TODO The customer id should be fetched from the session
@@ -167,75 +130,6 @@ public class PaymentService {
     private double calculateAmount(String merchandiseId) {
         // TODO Calculate the amount according to the merchandiseId
         return 0.1;
-    }
-
-    private JSONObject assignParametersForCreatingPayment(String requestID) {
-        // TODO Modify the arguments, which should be passed from the client side.
-        JSONObject jsonBody = new JSONObject();
-        jsonBody.put("beneficiary", this.assignBeneficiary());
-        // jsonBody.add("payer", this.conductPayer());
-        jsonBody.put("payment_amount", "10000");
-        jsonBody.put("payment_currency", "HKD");
-        jsonBody.put("payment_method", "LOCAL");
-        jsonBody.put("reason", "Travel");
-        jsonBody.put("reference", "PMT1936398");
-        jsonBody.put("request_id", requestID);
-        jsonBody.put("source_currency", "USD");
-        return jsonBody;
-    }
-
-    private JSONObject assignBeneficiary() {
-        // TODO Modify the arguments, which should be passed from the client side.
-        JSONObject additionalInfo = new JSONObject();
-        additionalInfo.put("business_area", "Travel");
-
-        JSONObject address = new JSONObject();
-        address.put("city", "Hong Kong");
-        address.put("country_code", "HK");
-        address.put("postcode", "999077");
-        address.put("state", "Hong Kong");
-        address.put("street_address", "38 Chengtu Rd");
-
-        JSONObject bankDetails = new JSONObject();
-        bankDetails.put("account_currency", "HKD");
-        bankDetails.put("account_name", "John Walker");
-        bankDetails.put("account_number", "786005728434");
-        bankDetails.put("account_routing_type1", "bank_code");
-        bankDetails.put("account_routing_value1", "024");
-        bankDetails.put("bank_country_code", "HK");
-        bankDetails.put("bank_name", "Hang Seng Bank Limited");
-
-        JSONObject beneficiary = new JSONObject();
-        beneficiary.put("additional_info", additionalInfo);
-        beneficiary.put("address", address);
-        beneficiary.put("bank_details", bankDetails);
-        beneficiary.put("date_of_birth", "1976-08-26");
-        beneficiary.put("entity_type", "PERSONAL");
-        beneficiary.put("first_name", "John");
-        beneficiary.put("last_name", "Walker");
-
-        return beneficiary;
-    }
-
-    @Deprecated
-    private JSONObject conductPayer() {
-        // TODO Modify the arguments, which should be passed from the client side.
-        JSONObject additionalInfo = new JSONObject();
-        additionalInfo.put("business_registration_number", "EU300503");
-
-        JSONObject address = new JSONObject();
-        address.put("city", "Melbourne");
-        address.put("country_code", "AU");
-        address.put("postcode", "3000");
-        address.put("state", "VIC");
-        address.put("street_address", "15 Williams Street");
-
-        JSONObject payer = new JSONObject();
-        payer.put("additional_info", additionalInfo);
-        payer.put("address", address);
-        payer.put("company_name", "Complete Concrete Pty Ltd");
-        payer.put("entity_type", "COMPANY");
-        return payer;
     }
 
     /**
