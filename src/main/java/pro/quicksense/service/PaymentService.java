@@ -14,6 +14,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 import pro.quicksense.annotation.AirwallexRequest;
 import pro.quicksense.common.AirwallexConstant;
 import pro.quicksense.common.AirwallexPaymentLink;
+import pro.quicksense.entity.payment.AirwallexPaymentLinkRequest;
+import pro.quicksense.entity.payment.Payment;
 import pro.quicksense.util.TimezoneUtil;
 
 import java.text.ParseException;
@@ -70,11 +72,11 @@ public class PaymentService {
      * the customer could be redirected to this link address and finish the payment.
      */
     @AirwallexRequest
-    public JSONObject createPaymentLink() throws UnirestException {
+    public JSONObject createPaymentLink(Payment payment) throws UnirestException {
         HttpResponse<String> response = Unirest.post(API_PAYMENT_LINK_CREATE)
                 .header("Content-Type", "application/json")
                 .header("Authorization", "Bearer " + AIRWALLEX_TOKEN)
-                .body(this.assignParametersForPaymentLink().toString())
+                .body(this.assignParametersForPaymentLink(payment))
                 .asString();
         return JSON.parseObject(response.getBody());
     }
@@ -146,31 +148,25 @@ public class PaymentService {
         return JSON.parseObject(response.getBody());
     }
 
-    private JSONObject assignParametersForPaymentLink() {
-        // TODO Modify the arguments, which should be passed from the client side.
-        JSONObject jsonBody = new JSONObject();
-
-        JSONObject collectableShopperInfo = new JSONObject();
-        collectableShopperInfo.put("message", true);
-        collectableShopperInfo.put("phone_number", false);
-        collectableShopperInfo.put("reference", false);
-        collectableShopperInfo.put("shipping_address", false);
-
+    private String assignParametersForPaymentLink(Payment payment) {
         JSONObject metadata = new JSONObject();
-        metadata.put("customer_id", "12345678");
+        // TODO The customer id should be fetched from the session
+        metadata.put("customer_id", "015400");
+        String description = "Quicksense 年费会员";
+        String title = "Quicksense 年费会员";
+        AirwallexPaymentLinkRequest paymentLinkRequest = new AirwallexPaymentLinkRequest(
+                metadata,
+                this.calculateAmount(payment.getMerchandiseId()),
+                payment.getCurrency(),
+                description,
+                false,
+                title);
+        return JSONObject.parseObject(JSON.toJSONString(paymentLinkRequest)).toString();
+    }
 
-        jsonBody.put("amount", 0.1);
-        jsonBody.put("collectable_shopper_info", collectableShopperInfo);
-        jsonBody.put("currency", "CNY");
-        jsonBody.put("description", "Quicksense 年费会员");
-        jsonBody.put("expires_at", "2025-11-04T16:00:00Z");
-
-        jsonBody.put("metadata", metadata);
-        jsonBody.put("reference", "1529");
-        jsonBody.put("reusable", false);
-        jsonBody.put("title", "Quicksense 年费会员");
-
-        return jsonBody;
+    private double calculateAmount(String merchandiseId) {
+        // TODO Calculate the amount according to the merchandiseId
+        return 0.1;
     }
 
     private JSONObject assignParametersForCreatingPayment(String requestID) {
