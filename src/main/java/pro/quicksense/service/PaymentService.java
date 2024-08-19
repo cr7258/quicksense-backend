@@ -1,7 +1,6 @@
 package pro.quicksense.service;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
@@ -63,6 +62,7 @@ public class PaymentService {
                 .asString();
         JSONObject jsonObject = JSON.parseObject(response.getBody());
         AIRWALLEX_TOKEN = (String) jsonObject.get(AirwallexConstant.TOKEN);
+        // Token expiration time in ISO8601 format, like 2024-08-19T09:16:22+0000
         AIRWALLEX_TOKEN_EXPIRES_AT = TimezoneUtil.convertUTC2ICT((String) jsonObject.get(AirwallexConstant.TOKEN_EXPIRED_AT));
     }
 

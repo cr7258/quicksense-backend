@@ -1,8 +1,6 @@
 package pro.quicksense.util;
 
 
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -21,7 +19,7 @@ public class TimezoneUtil {
         utcFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
         Date utcDate = utcFormat.parse(utcTimeString);
         SimpleDateFormat ictFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        ictFormat.setTimeZone(TimeZone.getTimeZone("Asia/Bangkok")); // 使用 "Asia/Bangkok" 时区
+        ictFormat.setTimeZone(TimeZone.getTimeZone("Asia/Shanghai"));
         return ictFormat.format(utcDate);
     }
 
@@ -30,7 +28,6 @@ public class TimezoneUtil {
      */
     public static Date convertTimeStringToDateObject(String ictTimeString) throws ParseException {
         SimpleDateFormat ictFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        ictFormat.setTimeZone(TimeZone.getTimeZone("Asia/Bangkok"));
         return ictFormat.parse(ictTimeString);
     }
 
