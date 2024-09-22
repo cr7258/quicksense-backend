@@ -4,14 +4,16 @@ start-dependencies:
 stop-dependencies:
 	docker-compose down
 
-start-app:
-	./gradlew bootRun
-
 test:
 	./gradlew test
 
 build:
 	./gradlew build
+
+start-app:
+	java -jar ./backend/build/libs/backend-0.0.1-SNAPSHOT.jar
+
+build-and-start: build start-all
 
 start-all: start-dependencies start-app
 
