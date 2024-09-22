@@ -7,6 +7,9 @@ stop-dependencies:
 start-app:
 	./gradlew bootRun
 
+test:
+	./gradlew test
+
 start-all: start-dependencies start-app
 
 .PHONY: start-dependencies stop-dependencies
