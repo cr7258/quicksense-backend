@@ -7,6 +7,9 @@ stop-dependencies:
 test:
 	./gradlew test
 
+test-skip-frontend:
+	./gradlew test -PskipFrontendBuild
+
 build:
 	./gradlew build
 

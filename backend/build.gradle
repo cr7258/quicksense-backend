@@ -77,17 +77,20 @@ node {
 task appNpmInstall(type: NpmTask){
     workingDir = file("${project.projectDir}/../frontend")
     args =["install"]
+    onlyIf { !project.hasProperty('skipFrontendBuild') }
 }
 task appNpmBuild(type: NpmTask){
     dependsOn "appNpmInstall"
     workingDir = file("${project.projectDir}/../frontend")
     args =["run", "build"]
+    onlyIf { !project.hasProperty('skipFrontendBuild') }
 }
 
 task copyFrontendToBackend(type: Copy){
     dependsOn "appNpmBuild"
     from "${projectDir}/../frontend/dist"
-    into "${buildDir}/resources/main/static"
+    into layout.buildDirectory.dir("resources/main/static")
+    onlyIf { !project.hasProperty('skipFrontendBuild') }
 }
 
 processResources.dependsOn('copyFrontendToBackend')
