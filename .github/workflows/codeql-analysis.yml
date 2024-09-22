@@ -15,7 +15,7 @@ jobs:
           java-version: 21
 
       - name: Install dependencies, run tests, and collect coverage
-        run: ./gradlew test
+        run: make test
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v4.0.1
