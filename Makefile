@@ -10,6 +10,9 @@ start-app:
 test:
 	./gradlew test
 
+build:
+	./gradlew build
+
 start-all: start-dependencies start-app
 
 .PHONY: start-dependencies stop-dependencies
