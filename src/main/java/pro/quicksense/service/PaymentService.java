@@ -1,0 +1,167 @@
+package pro.quicksense.service;
+
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.mashape.unirest.http.HttpResponse;
+import com.mashape.unirest.http.JsonNode;
+import com.mashape.unirest.http.Unirest;
+import com.mashape.unirest.http.exceptions.UnirestException;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.springframework.web.util.UriComponentsBuilder;
+import pro.quicksense.annotation.AirwallexRequest;
+import pro.quicksense.common.AirwallexConstant;
+import pro.quicksense.common.AirwallexPaymentLink;
+import pro.quicksense.entity.payment.AirwallexPaymentLinkRequest;
+import pro.quicksense.entity.payment.Payment;
+import pro.quicksense.util.TimezoneUtil;
+
+import java.text.ParseException;
+import java.util.Date;
+import java.util.Optional;
+
+import static pro.quicksense.common.AirwallexConstant.*;
+
+@Service
+public class PaymentService {
+
+    /**
+     * As a client to Airwallex, all the requests should be sent with a token returned from authentication.
+     */
+    private static String AIRWALLEX_TOKEN;
+
+    /**
+     * The timestamp the token would expire at.
+     */
+    private static String AIRWALLEX_TOKEN_EXPIRES_AT;
+
+    @Value("${airwallex.CLIENT_ID_TEST}")
+    private String clientId;
+
+    @Value("${airwallex.API_KEY_TEST}")
+    private String apiKey;
+
+    /**
+     * Request for Airwallex authentication, Airwallex would return a time-sensitive token,
+     * which should be included in all the other requests to Airwallex.
+     */
+    public void authByAirwallex() throws UnirestException, ParseException {
+        Date currentDate = new Date();
+        // TODO Check the correctness of the date.
+        if (StringUtils.isNotEmpty(AIRWALLEX_TOKEN_EXPIRES_AT)
+                && currentDate.before(TimezoneUtil.convertTimeStringToDateObject(AIRWALLEX_TOKEN_EXPIRES_AT))) {
+            return;
+        }
+        HttpResponse<String> response = Unirest.post(AirwallexConstant.API_AUTHENTICATION_LOGIN)
+                .header("Content-Type", "application/json")
+                // TODO Replace the 'CLIENT_ID_TEST' and 'API_KEY_TEST' with configurations for production.
+                .header("x-client-id", clientId)
+                .header("x-api-key", apiKey)
+                .body("{}")
+                .asString();
+        JSONObject jsonObject = JSON.parseObject(response.getBody());
+        AIRWALLEX_TOKEN = (String) jsonObject.get(AirwallexConstant.TOKEN);
+        // Token expiration time in ISO8601 format, like 2024-08-19T09:16:22+0000
+        AIRWALLEX_TOKEN_EXPIRES_AT = TimezoneUtil.convertUTC2ICT((String) jsonObject.get(AirwallexConstant.TOKEN_EXPIRED_AT));
+    }
+
+
+    /**
+     * Create a payment link, which is hosted by Airwallex,
+     * the customer could be redirected to this link address and finish the payment.
+     */
+    @AirwallexRequest
+    public JSONObject createPaymentLink(Payment payment) throws UnirestException {
+        HttpResponse<String> response = Unirest.post(API_PAYMENT_LINK_CREATE)
+                .header("Content-Type", "application/json")
+                .header("Authorization", "Bearer " + AIRWALLEX_TOKEN)
+                .body(this.assignParametersForPaymentLink(payment))
+                .asString();
+        return JSON.parseObject(response.getBody());
+    }
+
+    @AirwallexRequest
+    public JSONObject retrievePaymentLink(String paymentLinkId) throws UnirestException {
+        HttpResponse<String> response = Unirest.get(AirwallexConstant.API_PAYMENT_LINKS_LIST + "/" + paymentLinkId)
+                .header("Authorization", "Bearer " + AIRWALLEX_TOKEN)
+                .asString();
+        return JSON.parseObject(response.getBody());
+    }
+
+    /**
+     * Get list of PaymentLinks
+     * @param fromCreatedAt Specifies start time (inclusive) in ISO 8601 for a range query by created timestamp
+     * @param toCreatedAt Specifies end time (exclusive) in ISO 8601 for a range query by created timestamp
+     * @param isPaid Status of the payment link, one of UNPAID or PAID.
+     * @param isActive The payment link’s active status, either true or false
+     */
+    @AirwallexRequest
+    public JSONObject listPaymentLinks(String fromCreatedAt, String toCreatedAt, Boolean isPaid, Boolean isActive) throws UnirestException {
+        UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(API_PAYMENT_LINKS_LIST);
+        builder.queryParamIfPresent("from_created_at", Optional.ofNullable(fromCreatedAt));
+        builder.queryParamIfPresent("to_created_at", Optional.ofNullable(toCreatedAt));
+        if (isPaid != null) {
+            builder.queryParam("status", isPaid ? AirwallexPaymentLink.PAYMENT_LINK_STATUS_PAID : AirwallexPaymentLink.PAYMENT_LINK_STATUS_UNPAID);
+        }
+        builder.queryParamIfPresent("active", Optional.ofNullable(isActive));
+        HttpResponse<String> response = Unirest.get(builder.build().toString())
+                .header("Authorization", "Bearer " + AIRWALLEX_TOKEN)
+                .asString();
+        return JSON.parseObject(response.getBody());
+    }
+
+    private String assignParametersForPaymentLink(Payment payment) {
+        JSONObject metadata = new JSONObject();
+        // TODO The customer id should be fetched from the session
+        metadata.put("customer_id", "015400");
+        String description = "Quicksense 年费会员";
+        String title = "Quicksense 年费会员";
+        AirwallexPaymentLinkRequest paymentLinkRequest = new AirwallexPaymentLinkRequest(
+                metadata,
+                this.calculateAmount(payment.getMerchandiseId()),
+                payment.getCurrency(),
+                description,
+                false,
+                title);
+        return JSONObject.parseObject(JSON.toJSONString(paymentLinkRequest)).toString();
+    }
+
+    private double calculateAmount(String merchandiseId) {
+        // TODO Calculate the amount according to the merchandiseId
+        return 0.1;
+    }
+
+    /**
+     * Query all the available balances in our account.
+     */
+    private JsonNode getBalanceInAirwallex() throws UnirestException {
+        HttpResponse<JsonNode> response = Unirest.get(AirwallexConstant.API_GET_BALANCES)
+                .header("Authorization", "Bearer " + AIRWALLEX_TOKEN)
+                .asJson();
+        return response.getBody();
+    }
+
+    /**
+     * Return a guaranteed rate for the currency pair you are looking to transact in.
+     */
+    @AirwallexRequest
+    private void getQuote() throws UnirestException {
+        HttpResponse<JsonNode> response = Unirest.post(AirwallexConstant.API_CREATE_QUOTE)
+                .header("Authorization", "Bearer " + AIRWALLEX_TOKEN)
+                .header("Content-Type", "application/json")
+                .body(this.conductRequestBodyForCreatingQuote().toString())
+                .asJson();
+    }
+
+    private JSONObject conductRequestBodyForCreatingQuote() {
+        JSONObject jsonBody = new JSONObject();
+        jsonBody.put("buy_amount", 10000);
+        jsonBody.put("buy_currency", "AUD");
+        jsonBody.put("conversion_date", TimezoneUtil.getCurrentDateByYYYYMMDD());
+        jsonBody.put("sell_amount", 100);
+        jsonBody.put("sell_currency", "USD");
+        jsonBody.put("validity", "HR_24");
+        return jsonBody;
+    }
+}
