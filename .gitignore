@@ -1,4 +1,7 @@
 .idea
 .vscode
 .gradle
-build
+backend/build/
+backend/.gradle/
+frontend/dist/
+frontend/node_modules/
