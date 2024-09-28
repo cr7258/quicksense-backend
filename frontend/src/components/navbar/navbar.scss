@@ -1,0 +1,53 @@
+﻿
+.navbar {
+    width: 100%;
+    padding: 20px;
+    display: flex;
+    align-items:center;
+    justify-content:space-between;
+}
+
+.logo{
+    display:flex;
+    align-items:center;
+    font-weight:bold;
+    gap:10px;
+
+}
+
+
+.notification{
+    position:relative;
+
+    span{
+        background-color:red;
+        color:white;
+        width:16px;
+        height:16px;
+        border-radius:50%;
+        top:-10px;
+        right:-10px;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+    }
+}
+
+  .icons{
+display:flex;
+align-items:center;
+//the space of character and icon
+gap: 20px;
+    .user{
+        align-items:center;
+        display:flex;
+        img{
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            object-fit: cover;
+            
+
+        }   
+    }
+}

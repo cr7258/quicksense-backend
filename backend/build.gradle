@@ -3,6 +3,7 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.1.0'
     id 'io.spring.dependency-management' version '1.1.0'
+    id "com.github.node-gradle.node" version "7.0.2"
 }
 
 group = 'pro.quicksense'
@@ -66,3 +67,30 @@ jacocoTestReport {
         csv.required = true
     }
 }
+
+node {
+    download = true
+    version = "16.20.2"
+    npmVersion = "8.19.4"
+}
+
+task appNpmInstall(type: NpmTask){
+    workingDir = file("${project.projectDir}/../frontend")
+    args =["install"]
+    onlyIf { !project.hasProperty('skipFrontendBuild') }
+}
+task appNpmBuild(type: NpmTask){
+    dependsOn "appNpmInstall"
+    workingDir = file("${project.projectDir}/../frontend")
+    args =["run", "build"]
+    onlyIf { !project.hasProperty('skipFrontendBuild') }
+}
+
+task copyFrontendToBackend(type: Copy){
+    dependsOn "appNpmBuild"
+    from "${projectDir}/../frontend/dist"
+    into layout.buildDirectory.dir("resources/main/static")
+    onlyIf { !project.hasProperty('skipFrontendBuild') }
+}
+
+processResources.dependsOn('copyFrontendToBackend')
